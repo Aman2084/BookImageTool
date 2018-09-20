@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx"
+					   showStatusBar="false"
+					   xmlns:batch="batch.*" xmlns:browe="browe.*" xmlns:edit="edit.*" 
+					   creationComplete="init(event)" xmlns:sort="sort.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			private function init(event:FlexEvent):void{
+				maximize()
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<mx:TabNavigator width="100%" height="100%" selectedIndex="0">
+		<browe:Browse id="browse" label="下载" width="100%" height="100%"/>
+		<sort:Sort id="sorft" label="排序" width="100%" height="100%"/>
+		<edit:Editor id="editor" label="信息" width="100%" height="100%"/>
+	</mx:TabNavigator>
+	
+</s:WindowedApplication>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 paddingLeft="20" creationComplete="init()">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.controls.Alert;
+			
+			import spark.components.RadioButton;
+			
+			import utils.ToolsValues;
+			
+			private var _file:File;
+			private var _loader:EditLoader;
+			private var _arr_radio:Array;
+			
+			private function init():void{
+				_arr_radio = new Array();
+				_file = new File(ToolsValues.DefaultUrl);
+				_loader = new EditLoader();
+				_loader.addEventListener(Event.COMPLETE , onLoader);
+				_file.addEventListener(Event.SELECT , onSelected);
+			}
+			
+			private function onClick($e:MouseEvent):void{
+				switch($e.currentTarget){
+					case btn_browe:
+						_file.nativePath = ToolsValues.DefaultUrl;
+						_file.browseForDirectory("");
+						break;
+					case btn_embed:
+						codingEmbed();
+						break;
+					case btn_page:
+						codingPage();
+						break
+				}
+			}
+			
+			private function onSelected($e:Event):void{
+				btn_browe.enabled = btn_embed.enabled = btn_page.enabled = false;
+				var a:Array = _file.getDirectoryListing();
+				_loader.startLoad(a);
+			}
+			
+			private function onLoader($e:Event):void{
+				while(_arr_radio.length){
+					var r:RadioButton = _arr_radio.shift() as RadioButton;
+					r.group = null;
+					this.removeElement(r);
+				}
+				var a:Array = _loader.size;
+				for (var i:int = 0; i < a.length; i++){
+					var s:ImageSizeInfo = a[i];
+					var btn:RadioButton = new RadioButton();
+					btn.label = s.name;
+					btn.group = group;
+					_arr_radio.push(btn);
+					btn.value = s;
+					this.addElementAt(btn , 1);
+				}
+				btn_browe.enabled = btn_embed.enabled = btn_page.enabled = true;
+			}
+			
+			private function codingEmbed():void{
+				var a:Array = _loader.info;
+				var str:String ="";
+				for (var i:int = 0; i < a.length; i++) {
+					var o:ImageInfo = a[i];
+					var s:String = '[Embed(source="' + o.path +'")]' + "\n" + 
+											"public static var IMG" + o.num.toString() + ":Class" + "\n\r";
+					str += s;
+				}
+				var c:Clipboard = Clipboard.generalClipboard;
+				c.setData(ClipboardFormats.TEXT_FORMAT , str);
+				Alert.show("图片嵌入信息已经写入剪切版");
+			}
+			
+			private function codingPage():void{
+				var s:ImageSizeInfo = group.selectedValue as ImageSizeInfo;
+				if(!s){
+					Alert.show("请选择基准尺寸");
+					return
+				}
+				var xml:XML = <book/>
+				xml.@width = s.width;
+				xml.@height = s.height;
+				var a:Array = _loader.info;
+				for (var i:int = 0; i < a.length; i++){
+					var o1:ImageInfo = a[i];
+					var j:int = i+1;
+					var isSimplePage:Boolean = i==0 || j==a.length;
+					if(!isSimplePage){
+						var o2:ImageInfo = a[j];
+						isSimplePage = o2.num==(o1.num+1);
+					}
+					var xx:XML = <page/>;
+					xx.@img = o1.num;
+					xx.@direction = "whole";
+					xml.appendChild(xx);
+					if(!isSimplePage){
+						xx.@direction = "left";
+						xx = xx.copy();
+						xx.@direction = "right";
+						xml.appendChild(xx);
+					}
+				}
+				
+				var c:Clipboard = Clipboard.generalClipboard;
+				c.setData(ClipboardFormats.TEXT_FORMAT , xml.toString());
+				Alert.show("页面信息已经写入剪切版");
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="group"/>
+	</fx:Declarations>
+	
+	<s:Label text="单页尺寸："/>
+	
+	<mx:HBox>
+		<s:Button id="btn_browe" label="浏览" click="onClick(event)"/>
+		<s:Button id="btn_embed" label="嵌入图片" click="onClick(event)"/>
+		<s:Button id="btn_page" label="书页信息" click="onClick(event)"/>
+	</mx:HBox>
+</mx:VBox>

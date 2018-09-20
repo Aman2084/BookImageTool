@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:sort="sort.*" 
+		 xmlns:browe="browe.*"
+		 horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		 creationComplete="init(event)" >
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			import utils.ToolsValues;
+			import utils.ZEvent;
+			
+			[Bindable]
+			public var isLoading:Boolean = false;
+			
+			
+			private var _file:File = new File(ToolsValues.DefaultUrl);
+			
+			private function init($e:FlexEvent):void{
+				_file.addEventListener(Event.SELECT , onFile);
+				_file.addEventListener(Event.COMPLETE , onFile);	
+				items.addEventListener(ZEvent.ItemDoubleClick , onItem);
+			}
+			
+			private function onClick(event:MouseEvent):void{
+				switch(event.currentTarget){
+					case btn_local:
+						_file.browseForDirectory("请选取文件夹");
+						break
+				}
+			}
+			
+			private function onFile($e:Event):void{
+				_file.url
+				var a:Array = _file.getDirectoryListing();
+				items.setData(a);
+			}
+			
+			
+			private function onResize($e:ResizeEvent):void{
+				// TODO Auto-generated method stub
+			}
+			
+			private function onItem($e:ZEvent):void{
+				var index:int =  $e.data as int;
+				trace(index);
+				//TODO... 815
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%">
+		<sort:SortItems id="items" width="100%" height="100%"/>
+		
+		<mx:HBox id="bar"  bottom="0" verticalAlign="middle"
+				 width="100%" height="35" borderVisible="false"
+				 backgroundColor="0x009cff" backgroundAlpha="0.3"
+				 paddingLeft="10">
+			<s:Button id="btn_local" 
+					  enabled="{!isLoading}" label="目录" click="onClick(event)"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<browe:BrowImage id="img"
+				 width="100%" height="100%" visible="false"
+				 />
+</mx:Canvas>

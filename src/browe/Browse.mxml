@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:batch="batch.*" xmlns:browe="browe.*"
+		   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		   keyDown="onKey(event)" creationComplete="init(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import utils.ToolsValues;
+			import utils.ZEvent;
+			
+			private var _file:File = new File(ToolsValues.DefaultUrl);
+			private var _stream:FileStream = new FileStream();
+			private var _open_save:Boolean;
+			private var _saver:MySaver = new MySaver();
+			
+			
+			[Bindable]
+			public var isLoading:Boolean = false;
+			
+			private function init($e:FlexEvent):void{
+				list.addEventListener(ZEvent.Complete , onList);
+				list.addEventListener(BrowListItem.Show , onList);
+				_saver.addEventListener(ZEvent.Complete , onSaver);
+				img.addEventListener(ZEvent.Close , onImg);
+				img.addEventListener(ZEvent.DownLoad , onImg);
+			}
+			
+			private function onKey($e:KeyboardEvent):void{
+				switch($e.keyCode){
+					case Keyboard.ENTER:
+						load();
+						break
+				}
+			}
+			
+			private function onClick(event:MouseEvent):void{
+				switch(event.currentTarget){
+					case btn_look:
+						load();
+						break
+					case btn_clear:
+						list.clear();
+						break
+					case btn_local:
+						_file.browseForDirectory("请选取文件夹");
+						break
+					case btn_download_open:
+						_open_save = true;
+						save();
+						break
+					case btn_download:
+						_open_save = false;
+						save();
+						break
+					case btn_open:
+						_file.openWithDefaultApplication();
+						break;
+				}
+			}
+			
+			private function onImg($e:ZEvent):void{
+				var o:Object = $e.data
+				switch($e.type){
+					case ZEvent.Close:
+						img.visible = false;
+						break
+					case ZEvent.DownLoad:
+						saveSingle(o.bmd , o.index);
+						break
+				}
+			}
+			
+		//显示图片列表
+			private  function load():void{
+				isLoading = true;
+				list.y = 0;
+				list.setData(input.text);
+			}
+			private function onList($e:ZEvent):void{
+				switch($e.type){
+					case ZEvent.Complete:
+						isLoading = false;
+						break;
+					case BrowListItem.Show:
+						var bmd:BitmapData = ($e.target as BrowListItem).img.bitmapData;
+						if(bmd){
+							var a:Array = list.getBmd();
+							var index:int = int(($e.target as BrowListItem).name);
+							img.setData(a , index);
+							img.visible = true;
+						}
+						break;
+				}
+			}
+			
+		//保存图片到本地
+			private  function save():void{
+				isLoading = true;
+				var f:File = _file.resolvePath(list.folderName);
+				_saver.save(list.getBmd() , f.nativePath);
+			}
+			
+			private function onSaver($e:Event):void{
+				isLoading = false;
+				if(_open_save){
+					
+				}
+			}
+			
+		//保存单张图片
+		private function saveSingle($b:BitmapData , $index:int):void{
+			var s:String = $index<10 ? "0"+$index : $index.toString();
+			s += ".jpg";
+			s = list.folderName + "_" + s;
+			var f:File = _file.resolvePath(s);
+			_saver.saveSingle(f , $b);
+		}
+			/*
+			private function onClick_back($e:Event):void{
+				setFocus();
+				var c:DisplayObject = $e.target as DisplayObject;
+				var b:Boolean = c==this || c==img || img.contains(c);
+				if(!b){
+					return;
+				}
+				if(!_mode.hasImage){
+					return;
+				}
+				var n:Number = this.width / 2;
+				if(this.mouseX<n){
+					changeImage(-1); 
+				}else{
+					changeImage(1);
+				}
+			}
+			*/
+			
+			private function onUp($e:MouseEvent):void{
+				($e.currentTarget as Stage).removeEventListener(MouseEvent.MOUSE_UP , onUp);
+				list.stopDrag();
+			}
+		]]>
+	</fx:Script>
+	
+	<mx:HBox id="bar"  bottom="0" verticalAlign="middle"
+					   width="100%" height="35" borderVisible="false"
+					   backgroundColor="0x009cff" backgroundAlpha="0.3"
+					   paddingLeft="10">
+		<s:TextInput id="input" contentBackgroundAlpha="0"
+					width="200" height="24" x="10" y="0" enabled="{!isLoading}"
+					keyDown="onKey(event)"/>
+		<s:Button id="btn_look" 
+				  label="查看图片" x="{input.x + input.width + 5}" enabled="{!isLoading}"
+				  click="onClick(event)"/>
+		<s:Button id="btn_clear"
+				  enabled="{!isLoading}" label="清除" click="onClick(event)"/>
+		<s:Button id="btn_local"
+				  enabled="{!isLoading}" label="目录" click="onClick(event)"/>
+		
+		<s:Button id="btn_download" 
+				  enabled="{!isLoading}" label="批量下载" click="onClick(event)" />
+		<s:Button id="btn_download_open" 
+				  enabled="{!isLoading}" label="批量下载并查看" click="onClick(event)" />
+		<s:Button id="btn_open" 
+				  enabled="{!isLoading}" label="打开目录" click="onClick(event)" />
+	</mx:HBox>
+	
+	<browe:BrowList id="list" 
+					enabled="{!isLoading}" backgroundColor="0xffffff"
+					width="100%" height="{bar.y}"/>
+	
+	<browe:BrowImage id="img" visible="false"
+					 width="100%" height="100%"/>
+	
+</mx:Canvas>

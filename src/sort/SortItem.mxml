@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		   backgroundColor="0x000000"
+		   width="230" height="170" 
+		   mouseChildren="false"
+		   click="onClick(event)" 
+		   mouseUp="onUp(event)"
+		   mouseDown="onDown(event)"
+		   doubleClick="onDoubleClick(event)" doubleClickEnabled="true">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.utils.Utils;
+			
+			import flash.utils.clearTimeout;
+			import flash.utils.setTimeout;
+			
+			import utils.ZEvent;
+			
+			
+			
+			public static const W :int = 230;
+			public static const H :int = 170;
+			
+			[Bindable]
+			public var imgUrl:String = "";
+			
+			public var isLoading:Boolean = false;
+			
+			private var _data:File;
+			
+			private var _index:int;
+			private var _functionId:uint;
+//Listener
+			private function img_ioErrorHandler($e:IOErrorEvent):void{
+				isLoading = false;
+				var evt:ZEvent = new ZEvent(ZEvent.IOError , null);
+				dispatchEvent(evt);
+			}
+			private function onComplete($e:Event):void{
+				isLoading = false;
+				var evt:ZEvent = new ZEvent(ZEvent.Complete , null , true);
+				dispatchEvent(evt);
+			}
+			
+			private function onClick($e:MouseEvent):void{
+				if($e.ctrlKey){
+					onDoubleClick();
+					return
+				}
+				
+				check.selected = !check.selected;
+				
+				refuse_bg()
+				
+				var evt:ZEvent = new ZEvent(ZEvent.Selected , null , true);
+				this.dispatchEvent(evt);
+			}
+			
+//interface
+			public function load($f:File):void{
+				if(isLoading){
+					return;
+				}
+				isLoading = true;
+				_data = $f;
+				imgUrl = $f.nativePath;
+			}
+			
+			public function unLoad():void{
+				if(img.bitmapData){
+					img.bitmapData.dispose();
+				}
+				img.source = null;
+				isLoading = false;
+			}
+			
+			private function onDoubleClick(event:MouseEvent = null):void{
+				var c:DisplayObjectContainer = this.parent;
+				var i:int = c.getChildIndex(this);
+				var evt:ZEvent = new ZEvent(ZEvent.ItemDoubleClick , i , true);
+				this.dispatchEvent(evt);
+			}
+
+			public function get index():int{
+				return _index;
+			}
+
+			public function set index($o:int):void{
+				_index = $o;
+				txt.text = Utils.int2Str($o , 3);
+				refuse_bg()
+			}
+			
+			public function get isBigger():Boolean{
+				return check.selected
+			}
+			
+			private function onDown($e:MouseEvent):void{
+				_functionId = setTimeout(onTime , 150);
+			}
+			private function onUp($e:MouseEvent):void{
+				clearTimeout(_functionId);
+			}
+			private function onTime():void{
+				var o:Image = new Image();
+				var b:BitmapData = img.bitmapData
+				var evt:ZEvent = new ZEvent(ZEvent.Show , b , true)
+				this.dispatchEvent(evt)
+			}
+			
+			public function get isRightPage():Boolean{
+				if(!isBigger){
+					return true;
+				}
+				var b:Boolean = _index%2!=0;
+				if(b){
+					var i:int = this.parent.getChildIndex(this);
+					var n:int = this.parent.numChildren-1;
+					b = i!=n;
+				}
+				return b;
+			}
+			
+			private function refuse_bg():void{
+				var color:int =  0xffffff;
+				if(isBigger){
+					color = isRightPage ?  0x009cff : 0xff0000
+				}
+				bg.setStyle("backgroundColor" , color);
+			}
+		]]>
+	</fx:Script>
+	
+	<s:Image id="img"
+			 complete="onComplete(event)" ioError="img_ioErrorHandler(event)"
+			 width="100%" height="100%" smooth="true"
+			 scaleMode="letterbox" verticalAlign="middle" horizontalAlign="center" 
+			 click="onClick(event)" source="{imgUrl}"/>
+	
+	<s:Image id="bg" width="100%" height="30" bottom="0" backgroundAlpha="0.6" backgroundColor="0xffffff"/>
+	<s:Label id="txt" width="100%" height="20" bottom="0"  textAlign="center" text="001" fontSize="14"/>
+	<s:CheckBox id="check" right="5" top="5"/>
+</mx:Canvas>

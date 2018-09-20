@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		   backgroundColor="0x000000"
+		   width="230" height="170">
+	
+	<fx:Script>
+		<![CDATA[
+			import utils.ZEvent;
+			
+			public static const Show:String = "show_item";
+			public static const Dlownload:String = "download_item";
+			public static const W :int = 230;
+			public static const H :int = 170;
+			
+			public var yos:Number;
+			public var isLoading:Boolean = false;
+			
+			[Bindable]
+			public var imgUrl:String = "";
+			
+			private function onComplete($e:Event):void{
+				isLoading = false;
+				dispatchEvent($e);
+			}
+			
+			private function img_ioErrorHandler($e:IOErrorEvent):void{
+				isLoading = false;
+				dispatchEvent($e);
+			}
+			
+			private function onClick($e:MouseEvent):void{
+				var s:String = "";
+				switch($e.currentTarget){
+					case img:
+						s = Show;
+						break
+					case btn_download:
+						s = Dlownload;
+						break
+					case btn_refresh:
+						s =imgUrl;
+						imgUrl = "";
+						imgUrl = s
+						break
+				}
+				if(s){
+					var evt:ZEvent = new ZEvent(s ,null , true);
+					this.dispatchEvent(evt);
+				}
+			}
+			
+			public function load($src:String):void{
+				if(isLoading){
+					return;
+				}
+				isLoading = true;
+				imgUrl = $src;
+			}
+			
+			public function unLoad():void{
+				img.source = null;
+				if(img.bitmapData){
+					img.bitmapData.dispose();
+				}
+				isLoading = true;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
+	</fx:Declarations>
+	
+	<s:Image id="img"
+			 complete="onComplete(event)" ioError="img_ioErrorHandler(event)"
+			 width="100%" height="100%" smooth="true"
+			 scaleMode="letterbox" verticalAlign="middle" horizontalAlign="center" 
+			 click="onClick(event)" source="{imgUrl}"/>
+	
+	<s:Image id="btn_download"
+			 width="20" height="20" right="5" bottom="5" smooth="true" 
+			 source="@Embed('assets/download.png')" buttonMode="true" click="onClick(event)"/>
+	<s:Image id="btn_refresh" 
+			 width="20" height="20" x="{btn_download.x - 25}"  y="{btn_download.y}" 
+			 source="@Embed('assets/refresh.png')" buttonMode="true" click="onClick(event)"
+			 smooth="true"/>
+	<s:Image id="btn_downloaded" visible="false"
+			 width="20" height="20" x="{btn_download.x}" y="{btn_download.y}"
+			 source="@Embed('assets/download.png')"  smooth="true"/>
+</mx:Canvas>
