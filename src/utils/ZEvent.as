@@ -60,6 +60,7 @@ package utils
 		public static const Resume:String = "resume";
 		public static const Play:String = "play";
 		public static const DownLoad:String = "downLoad";
+		public static var Delete:String = "delete";
 		
 		public static const IOError:String = "ioError";
 		
