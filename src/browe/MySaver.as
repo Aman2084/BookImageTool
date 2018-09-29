@@ -7,6 +7,8 @@
 
 package browe
 {
+	import com.aman.event.ZEvent;
+	
 	import flash.display.BitmapData;
 	import flash.events.EventDispatcher;
 	import flash.filesystem.File;
@@ -19,8 +21,6 @@ package browe
 	import mx.events.CloseEvent;
 	import mx.graphics.codec.JPEGEncoder;
 	
-	import utils.ZEvent;
-	
 	/**
 	 * 
 	 * @author Aman
@@ -29,6 +29,11 @@ package browe
 	 * @created  2018-5-14 下午5:37:53
 	 */
 	public class MySaver extends EventDispatcher{
+		
+//		public static const Type_Single:String = "single"
+//		public static const Type_Batch:String = "batch"
+//		public var saveType:String = ""
+		
 		
 		public var doing:Boolean = false;
 		private var _index:int;
@@ -99,6 +104,7 @@ package browe
 			this.dispatchEvent(evt);
 		}
 		
+//保存单张图片
 		public function saveSingle($f:File, $b:BitmapData):void{
 			if($f.exists){
 				_file_single = $f;
@@ -132,7 +138,9 @@ package browe
 			_stream.close();
 			b.clear();
 		}
-		
-		
+
+		public function get file_address():File{
+			return _file_address;
+		}
 	}
 }

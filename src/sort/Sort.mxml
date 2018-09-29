@@ -8,20 +8,18 @@
 		 creationComplete="init(event)" >
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
 			import com.aman.utils.Utils;
 			
 			import mx.events.FlexEvent;
 			
 			import utils.MyUtils;
 			import utils.ToolsValues;
-			import utils.ZEvent;
 			
-			[Bindable]
-			public var isLoading:Boolean = false;
-			
+			private var _data:File;
 			private var _file:File = new File(ToolsValues.DefaultUrl);
-			
 			private var _renamer:Renamer = new Renamer();
+			
 			
 			private function init($e:FlexEvent):void{
 				_file.addEventListener(Event.SELECT , onFile);
@@ -29,6 +27,11 @@
 				items.addEventListener(ZEvent.ItemDoubleClick , onItem);
 				img.addEventListener(ZEvent.Close , onImg);
 				_renamer.addEventListener(ZEvent.Complete , onRenamer);
+				if(_data){
+					_file.nativePath = _data.nativePath;
+					onFile()
+					_data = null;
+				}
 			}
 			
 			private function onClick(event:MouseEvent):void{
@@ -48,7 +51,7 @@
 				cursorManager.removeBusyCursor()
 			}
 			
-			private function onFile($e:Event):void{
+			private function onFile($e:Event=null):void{
 				var a:Array = _file.getDirectoryListing();
 				for (var i:int = 0; i < a.length; i++){
 					var f:File = a[i]
@@ -82,6 +85,19 @@
 			
 			private function onRenamer($e:ZEvent):void{
 				MyUtils.unBuzy()
+				if(check.selected){
+					var evt:ZEvent = new ZEvent(ZEvent.Next , _file)
+					this.dispatchEvent(evt);
+				}
+			}
+			
+			public function setData($f:File):void{
+				if(initialized){
+					_file.nativePath = $f.nativePath;
+					onFile()
+				}else{
+					_data = $f
+				}
 			}
 			
 		]]>
@@ -95,9 +111,10 @@
 				 backgroundColor="0x009cff" backgroundAlpha="0.3"
 				 paddingLeft="10">
 			<s:Button id="btn_local" 
-					  enabled="{!isLoading}" label="目录" click="onClick(event)"/>
+					   label="目录" click="onClick(event)"/>
 			<s:Button id="btn_rename"
-					  enabled="{!isLoading}" label="重命名" click="onClick(event)"/>
+					   label="重命名" click="onClick(event)"/>
+			<s:CheckBox id="check" label="自动下一步" selected="false"/>
 		</mx:HBox>
 	</mx:VBox>
 	

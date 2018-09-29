@@ -8,9 +8,10 @@
 		   creationComplete="init(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
+			
 			import mx.events.FlexEvent;
 			
-			import utils.ZEvent;
 			
 			private var _item_currect:SortItem;
 			public function setData($a:Array):void{

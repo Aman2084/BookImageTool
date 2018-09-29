@@ -8,7 +8,7 @@
 	
 	<fx:Script>
 		<![CDATA[
-			import utils.ZEvent;
+			import com.aman.event.ZEvent;
 			
 			public static const Show:String = "show_item";
 			public static const Dlownload:String = "download_item";

@@ -7,6 +7,8 @@
 
 package browe
 {
+	import com.aman.event.ZEvent;
+	
 	import flash.display.BitmapData;
 	import flash.events.Event;
 	import flash.events.IOErrorEvent;
@@ -17,7 +19,6 @@ package browe
 	import mx.events.ResizeEvent;
 	
 	import utils.UrlModel;
-	import utils.ZEvent;
 	
 	/**
 	 * 图片列表

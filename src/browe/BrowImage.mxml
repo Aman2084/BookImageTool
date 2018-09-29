@@ -10,12 +10,14 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
+			
 			import flash.utils.clearTimeout;
 			import flash.utils.setTimeout;
 			
 			import mx.events.ResizeEvent;
 			
-			import utils.ZEvent;
+			
 			
 			private static const Auto:String = "auto";
 			private static const ImgSize:String = "imgSize";
