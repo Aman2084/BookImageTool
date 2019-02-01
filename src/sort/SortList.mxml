@@ -8,15 +8,20 @@
 		   resize="onResize(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
+			
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
 			
-			import utils.ZEvent;
 			
 			private var _data:Array;
+			public var arr_removed:Array;
+			
 			
 			private function init($e:FlexEvent):void{
-				this.addEventListener(ZEvent.Selected , onItemSelected);
+				arr_removed = new Array();
+				this.addEventListener(ZEvent.Selected , onItem);
+				this.addEventListener(ZEvent.Delete , onItem);
 			}
 			
 			public function setData($a:Array):void{
@@ -96,15 +101,27 @@
 			}
 			
 			private function clear():void{
+				arr_removed.length = 0;
 				while(this.numChildren){
 					var o:SortItem = this.removeChildAt(0) as SortItem;
 					o.unLoad();
 				}
 			}
 			
-			private function onItemSelected($e:Event):void{
+			private function onItem($e:Event):void{
 				$e.stopImmediatePropagation();
-				refuse_imageNames()
+				var item:SortItem = $e.target as SortItem;
+				switch($e.type){
+					case ZEvent.Delete:
+						arr_removed.push(item.imgUrl);
+						this.removeChild(item);
+						onResize() 
+						refuse_imageNames();
+					case ZEvent.Selected:
+						refuse_imageNames()
+						break;
+				}
+				
 			}
 			
 			public function refuseChildrenPos():void{
@@ -152,6 +169,16 @@
 				}
 				trace(xml);
 			}*/
+			
+			public function get renameInfo():Array{
+				var a:Array = new Array();
+				for (var i:int = 0; i < this.numChildren; i++){
+					var item:SortItem = this.getChildAt(i) as SortItem;
+					var o:VoRename = new VoRename(item.imgUrl , item.getNmae());
+					a.push(o);
+				}
+				return a;
+			}
 			
 		]]>
 	</fx:Script>

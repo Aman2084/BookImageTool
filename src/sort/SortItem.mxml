@@ -6,20 +6,21 @@
 		   backgroundColor="0x000000"
 		   width="230" height="170" 
 		   mouseChildren="false"
+		   creationComplete="init(event)"
 		   click="onClick(event)" 
 		   mouseUp="onUp(event)"
 		   mouseDown="onDown(event)"
-		   doubleClick="onDoubleClick(event)" doubleClickEnabled="true">
+		   doubleClick="onDoubleClick(event)" 
+		   doubleClickEnabled="true">
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
 			import com.aman.utils.Utils;
 			
 			import flash.utils.clearTimeout;
 			import flash.utils.setTimeout;
 			
-			import utils.ZEvent;
-			
-			
+			import mx.events.FlexEvent;
 			
 			public static const W :int = 230;
 			public static const H :int = 170;
@@ -34,6 +35,21 @@
 			private var _index:int;
 			private var _functionId:uint;
 //Listener
+			private function init(event:FlexEvent):void{
+				var menu:ContextMenu = new ContextMenu();
+				menu.hideBuiltInItems();
+				var item:ContextMenuItem = new ContextMenuItem( "删除");
+				item.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT , onMenu);
+				item.separatorBefore = true;
+				menu.customItems.push(item);
+				this.contextMenu = menu;
+			}
+			
+			private function onMenu($e:ContextMenuEvent):void{
+				var evt:ZEvent = new ZEvent(ZEvent.Delete , null, true)
+				this.dispatchEvent(evt);
+			}
+			
 			private function img_ioErrorHandler($e:IOErrorEvent):void{
 				isLoading = false;
 				var evt:ZEvent = new ZEvent(ZEvent.IOError , null);
@@ -46,13 +62,12 @@
 			}
 			
 			private function onClick($e:MouseEvent):void{
-				if($e.ctrlKey){
+				if($e && $e.ctrlKey){
 					onDoubleClick();
 					return
 				}
 				
 				check.selected = !check.selected;
-				
 				refuse_bg()
 				
 				var evt:ZEvent = new ZEvent(ZEvent.Selected , null , true);
@@ -77,7 +92,10 @@
 				isLoading = false;
 			}
 			
-			private function onDoubleClick(event:MouseEvent = null):void{
+			private function onDoubleClick($e:MouseEvent = null):void{
+				if($e){
+					onClick(null)
+				}
 				var c:DisplayObjectContainer = this.parent;
 				var i:int = c.getChildIndex(this);
 				var evt:ZEvent = new ZEvent(ZEvent.ItemDoubleClick , i , true);
@@ -127,9 +145,13 @@
 			private function refuse_bg():void{
 				var color:int =  0xffffff;
 				if(isBigger){
-					color = isRightPage ?  0x009cff : 0xff0000
+					color = isRightPage ?  0x009cff : 0xff0000;
 				}
 				bg.setStyle("backgroundColor" , color);
+			}
+			
+			public function getNmae():String{
+				return txt.text;
 			}
 		]]>
 	</fx:Script>

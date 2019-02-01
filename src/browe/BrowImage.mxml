@@ -10,20 +10,22 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
+			
 			import flash.utils.clearTimeout;
 			import flash.utils.setTimeout;
 			
 			import mx.events.ResizeEvent;
 			
-			import spark.components.mediaClasses.VolumeBar;
 			
-			import utils.ZEvent;
 			
 			private static const Auto:String = "auto";
 			private static const ImgSize:String = "imgSize";
 			
 			[Bindable]
 			private var _bmd:BitmapData = null;
+			[Bindable]
+			private var _showDownload:Boolean = true;
 			
 			private var _zoomType:String = "auto"
 			private var _functioId:uint = 0;
@@ -38,10 +40,10 @@
 					return;
 				}
 				var w:Number = this.width / 5;
-				if(this.mouseX<w){
+				if(this.mouseX<w && _arr && _arr.length>0){
 					_index--;
 					updata();
-				}else if(this.mouseX>(w*4)){
+				}else if(this.mouseX>(w*4) && _arr && _arr.length>0){
 					_index++;
 					updata();
 				}else{
@@ -80,6 +82,7 @@
 				var data:Object = null
 				switch($e.currentTarget){
 					case btn_close:
+						$e.stopPropagation()
 						s = ZEvent.Close;
 						break
 					case btn_download:
@@ -160,6 +163,10 @@
 				s.removeEventListener(MouseEvent.MOUSE_MOVE , onMove);
 			}
 			
+			public function set showDownload($b:Boolean):void{
+				_showDownload = $b
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -178,5 +185,5 @@
 	<s:Image id="btn_download"
 			 width="30" height="30" right="10" bottom="10" smooth="true"
 			 source="@Embed('assets/download.png')" buttonMode="true" click="onBtn(event)"
-			 />
+			 visible="{_showDownload}"/>
 </mx:Canvas>

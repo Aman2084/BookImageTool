@@ -8,19 +8,19 @@
 	
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
+			
 			import mx.events.FlexEvent;
 			
+			import utils.MyUtils;
 			import utils.ToolsValues;
-			import utils.ZEvent;
+			
 			
 			private var _file:File = new File(ToolsValues.DefaultUrl);
 			private var _stream:FileStream = new FileStream();
 			private var _open_save:Boolean;
 			private var _saver:MySaver = new MySaver();
 			
-			
-			[Bindable]
-			public var isLoading:Boolean = false;
 			
 			private function init($e:FlexEvent):void{
 				list.addEventListener(ZEvent.Complete , onList);
@@ -77,14 +77,14 @@
 			
 		//显示图片列表
 			private  function load():void{
-				isLoading = true;
+				MyUtils.buzy();
 				list.y = 0;
 				list.setData(input.text);
 			}
 			private function onList($e:ZEvent):void{
 				switch($e.type){
 					case ZEvent.Complete:
-						isLoading = false;
+						MyUtils.unBuzy()
 						break;
 					case BrowListItem.Show:
 						var bmd:BitmapData = ($e.target as BrowListItem).img.bitmapData;
@@ -98,21 +98,26 @@
 				}
 			}
 			
-		//保存图片到本地
+//批量保存图片到本地
 			private  function save():void{
-				isLoading = true;
+				MyUtils.buzy()
 				var f:File = _file.resolvePath(list.folderName);
 				_saver.save(list.getBmd() , f.nativePath);
 			}
 			
 			private function onSaver($e:Event):void{
-				isLoading = false;
+				MyUtils.unBuzy()
+				var f:File = _saver.file_address;
 				if(_open_save){
-					
+					f.openWithDefaultApplication()
+				}
+				if(check.selected){
+					var evt:ZEvent = new ZEvent(ZEvent.Next , f)
+					this.dispatchEvent(evt)
 				}
 			}
 			
-		//保存单张图片
+//保存单张图片
 		private function saveSingle($b:BitmapData , $index:int):void{
 			var s:String = $index<10 ? "0"+$index : $index.toString();
 			s += ".jpg";
@@ -152,26 +157,27 @@
 					   backgroundColor="0x009cff" backgroundAlpha="0.3"
 					   paddingLeft="10">
 		<s:TextInput id="input" contentBackgroundAlpha="0"
-					width="200" height="24" x="10" y="0" enabled="{!isLoading}"
+					width="200" height="24" x="10" y="0" 
 					keyDown="onKey(event)"/>
 		<s:Button id="btn_look" 
-				  label="查看图片" x="{input.x + input.width + 5}" enabled="{!isLoading}"
+				  label="查看图片" x="{input.x + input.width + 5}" 
 				  click="onClick(event)"/>
 		<s:Button id="btn_clear"
-				  enabled="{!isLoading}" label="清除" click="onClick(event)"/>
+				   label="清除" click="onClick(event)"/>
 		<s:Button id="btn_local"
-				  enabled="{!isLoading}" label="目录" click="onClick(event)"/>
+				   label="目录" click="onClick(event)"/>
 		
 		<s:Button id="btn_download" 
-				  enabled="{!isLoading}" label="批量下载" click="onClick(event)" />
+				   label="批量下载" click="onClick(event)" />
 		<s:Button id="btn_download_open" 
-				  enabled="{!isLoading}" label="批量下载并查看" click="onClick(event)" />
+				   label="批量下载并查看" click="onClick(event)" />
 		<s:Button id="btn_open" 
-				  enabled="{!isLoading}" label="打开目录" click="onClick(event)" />
+				   label="打开目录" click="onClick(event)" />
+		<s:CheckBox id="check" label="自动下一步" selected="false"/>
 	</mx:HBox>
 	
 	<browe:BrowList id="list" 
-					enabled="{!isLoading}" backgroundColor="0xffffff"
+					 backgroundColor="0xffffff"
 					width="100%" height="{bar.y}"/>
 	
 	<browe:BrowImage id="img" visible="false"

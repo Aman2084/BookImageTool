@@ -4,25 +4,44 @@
 					   xmlns:mx="library://ns.adobe.com/flex/mx"
 					   showStatusBar="false"
 					   xmlns:batch="batch.*" xmlns:browe="browe.*" xmlns:edit="edit.*" 
-					   creationComplete="init(event)" xmlns:sort="sort.*">
+					   creationComplete="init(event)" xmlns:sort="sort.*" addedToStage="onAdded(event)">
 	<fx:Script>
 		<![CDATA[
+			import com.aman.event.ZEvent;
+			import com.aman.ui.root.StageLocker;
+			
 			import mx.events.FlexEvent;
+			
 			
 			private function init(event:FlexEvent):void{
 				maximize()
+				browse.addEventListener(ZEvent.Next , onBrowse);
+				sortf.addEventListener(ZEvent.Next , onSort);
+			}
+			
+			protected function onAdded(event:Event):void{
+				StageLocker.init(this.stage);
+			}
+			
+			private function onBrowse($e:ZEvent):void{
+				var f:File = $e.data as File;
+				sortf.setData(f)
+				tab.selectedIndex = 1;
+			}
+			
+			private function onSort($e:ZEvent):void{
+				var f:File = $e.data as File;
+				editor.setData(f);
+				tab.selectedIndex = 2;
 			}
 			
 		]]>
 	</fx:Script>
 	
-	<fx:Declarations>
-		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
-	</fx:Declarations>
 	
-	<mx:TabNavigator width="100%" height="100%" selectedIndex="0">
+	<mx:TabNavigator id="tab" width="100%" height="100%" selectedIndex="0">
 		<browe:Browse id="browse" label="下载" width="100%" height="100%"/>
-		<sort:Sort id="sorft" label="排序" width="100%" height="100%"/>
+		<sort:Sort id="sortf" label="排序" width="100%" height="100%"/>
 		<edit:Editor id="editor" label="信息" width="100%" height="100%"/>
 	</mx:TabNavigator>
 	

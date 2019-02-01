@@ -10,11 +10,13 @@
 			
 			import spark.components.RadioButton;
 			
+			import utils.MyUtils;
 			import utils.ToolsValues;
 			
 			private var _file:File;
 			private var _loader:EditLoader;
 			private var _arr_radio:Array;
+			private var _data:File;
 			
 			private function init():void{
 				_arr_radio = new Array();
@@ -22,6 +24,10 @@
 				_loader = new EditLoader();
 				_loader.addEventListener(Event.COMPLETE , onLoader);
 				_file.addEventListener(Event.SELECT , onSelected);
+				if(_data){
+					_file.nativePath = _data.nativePath;
+					onSelected()
+				}
 			}
 			
 			private function onClick($e:MouseEvent):void{
@@ -39,8 +45,8 @@
 				}
 			}
 			
-			private function onSelected($e:Event):void{
-				btn_browe.enabled = btn_embed.enabled = btn_page.enabled = false;
+			private function onSelected($e:Event = null):void{
+				MyUtils.buzy();
 				var a:Array = _file.getDirectoryListing();
 				_loader.startLoad(a);
 			}
@@ -61,7 +67,7 @@
 					btn.value = s;
 					this.addElementAt(btn , 1);
 				}
-				btn_browe.enabled = btn_embed.enabled = btn_page.enabled = true;
+				MyUtils.unBuzy()
 			}
 			
 			private function codingEmbed():void{
@@ -111,6 +117,15 @@
 				var c:Clipboard = Clipboard.generalClipboard;
 				c.setData(ClipboardFormats.TEXT_FORMAT , xml.toString());
 				Alert.show("页面信息已经写入剪切版");
+			}
+			
+			public function setData($f:File):void{
+				if(initialized){
+					_file.nativePath = $f.nativePath;
+					onSelected()
+				}else{
+					_data = $f
+				}
 			}
 			
 		]]>
