@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 width="400" height="70" xmlns:com="com.*" 
+		 backgroundAlpha="0.7" backgroundColor="0x666666"
+		 horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		 show="onShow(event)" initialize="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			import com.aman.ui.root.StageLocker;
+			
+			import mx.controls.CheckBox;
+			import mx.controls.Label;
+			import mx.events.FlexEvent;
+			
+			private var _url:String;
+			
+			public var dir_src:String;
+			private var _dir_target:String;
+			
+			private function init($e:FlexEvent):void{
+				btn_browse.addEventListener(ZEvent.Selected , onBrowse);
+				onShow();
+			}
+			
+			private function onShow($e:FlexEvent = null):void{
+				setRoot(btn_browse.url);
+			}
+			
+			private function onBrowse($e:ZEvent):void{
+				setRoot($e.data as String);
+			}
+			
+			private function setRoot($url:String):void{
+				box_txt.removeAllChildren();
+				addDir($url , false);
+			}
+			
+			private function addDir($url:String , isRoot:Boolean=false):void{
+				//添加文本
+				var txt:Label = new Label();
+				var f:File = new File($url);
+				
+				if(isRoot){
+					txt.text = f.name
+				}else{
+					txt.htmlText = "<a href='" +$url + "'>" + 
+						"<font color='#0000ff'>" + "/" + "<u>" + f.name + "</u>" + "</font>" +  
+						"</a>"
+					txt.data = $url;
+				}
+				box_txt.addChild(txt);
+				txt.mouseEnabled = true;
+				
+				//添加子目录
+				updata_dir($url);
+			}
+			
+			private function updata_dir($url:String):void{
+				_url = $url;
+				var f:File = new File($url)
+				box_dir.removeAllChildren()
+				var a:Array = f.getDirectoryListing();
+				var n:int = Math.min(a.length , 20);
+				for (var i:int = 0 ; i<n ; i++){
+					var file:File = a[i];
+					if(file.isDirectory){
+						var c:CheckBox = new CheckBox();
+						c.buttonMode = true;
+						c.label = file.name;
+						c.data = file;
+						box_dir.addChild(c);
+					}
+				}
+			}
+			
+			private function onTxt($e:MouseEvent):void{
+				var l:Label = $e.target.automationOwner as Label;
+				var s:String = l.data as String;
+				if(!s){
+					return
+				}
+				var n:int = box_txt.getChildIndex(l) as int;
+				for (var i:int=box_txt.numChildren-1 ; i>n ; i--){
+					box_txt.removeChildAt(i);
+				}
+				updata_dir(s);
+			}
+			
+			private function onDir($e:MouseEvent):void{
+				var c:CheckBox = $e.target as CheckBox
+				if(!c){
+					return
+				}
+				var f:File = c.data as File;
+				if(!f){
+					return
+				}
+				addDir(f.nativePath);
+			}
+			
+			private function onClick($e:MouseEvent):void{
+				if(!_url || !dir_src){
+					return
+				}
+				StageLocker.lock();
+				var file:File = new File(dir_src);
+				_dir_target =  _url + "\\" + file.name;
+				var f:File = new File(_dir_target);
+				file.addEventListener(Event.COMPLETE , onMoveComplete);
+				file.moveToAsync(f , true)
+			}
+			
+			private function onMoveComplete($e:Event):void{
+				var f:File = $e.target as File;
+				f.removeEventListener(Event.COMPLETE , onMoveComplete);
+				StageLocker.unlock();
+				var str:String = radio0.selected ? ZEvent.Next : ZEvent.Move;
+				var evt:ZEvent = new ZEvent(str , _dir_target);
+				this.dispatchEvent(evt);
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<s:RadioButtonGroup id="group" selection="{radio0}"/>
+	</fx:Declarations>
+	
+	<mx:HBox width="100%" height="35" horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			 paddingLeft="10" horizontalGap="5" verticalAlign="middle"  paddingTop="3">
+		<s:Button id="btn" label="移动" click="onClick(event)"/>
+		<s:Button id="btn_next" label="下一个" click="onNext(event)"/>
+		<mx:HBox id="box_txt" height="100%" verticalAlign="middle" paddingTop="6" 
+				 click="onTxt(event)"/>
+		<com:BrowseButton id="btn_browse"/>
+		<s:RadioButton id="radio0" group="{group}" label="下一个文件夹" selected="true"/>
+		<s:RadioButton id="radio1" group="{group}" label="移动至目标文件夹"/>
+	</mx:HBox>
+	
+	<mx:HBox id="box_dir" width="100%" height="35"  horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			 paddingLeft="10" click="onDir(event)"/>
+	
+</mx:VBox>

@@ -141,5 +141,6 @@
 		<s:Button id="btn_browe" label="浏览" click="onClick(event)"/>
 		<s:Button id="btn_embed" label="嵌入图片" click="onClick(event)"/>
 		<s:Button id="btn_page" label="书页信息" click="onClick(event)"/>
+		<s:Button id="btn_test" label="Test" click="onClick(event)"/>
 	</mx:HBox>
 </mx:VBox>

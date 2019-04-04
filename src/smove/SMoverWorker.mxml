@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:com="com.*" 
+		 backgroundAlpha="0.7" backgroundColor="0x666666"
+		 horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		 width="100%" height="35" paddingLeft="10" 
+		 horizontalGap="5" paddingTop="3"
+		 show="onShow(event)" initialize="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			import com.aman.ui.root.StageLocker;
+			
+			import mx.controls.CheckBox;
+			import mx.controls.Label;
+			import mx.events.FlexEvent;
+			
+			import utils.ToolsValues;
+			
+			private var _url:String;
+			
+			public var dir_src:String;
+			private var _dir_target:String;
+			
+			private function init($e:FlexEvent):void{
+				onShow();
+			}
+			
+			private function onShow($e:FlexEvent = null):void{	
+				setRoot(ToolsValues.TargeterUrl);
+			}
+			
+			private function onBrowse($e:ZEvent):void{
+				setRoot($e.data as String);
+			}
+			
+			private function setRoot($url:String):void{
+				box_txt.removeAllChildren();
+				addDir($url);
+			}
+			
+			private function addDir($url:String):void{
+				//添加文本
+				var txt:Label = new Label();
+				var f:File = new File($url);
+				
+				txt.htmlText = "<a href='" +$url + "'>" + 
+					"<font color='#0000ff'>" + "/" + "<u>" + f.name + "</u>" + "</font>" +  
+					"</a>"
+				txt.data = $url;
+				
+				box_txt.addChild(txt);
+				txt.mouseEnabled = true;
+				
+				//添加子目录
+				updata_dir($url);
+			}
+			
+			private function updata_dir($url:String):void{
+				_url = $url;
+				var f:File = new File($url)
+				box_dir.removeAllChildren()
+				var a:Array = f.getDirectoryListing();
+				var n:int = Math.min(a.length , 20);
+				for (var i:int = 0 ; i<n ; i++){
+					var file:File = a[i];
+					if(file.isDirectory){
+						var c:CheckBox = new CheckBox();
+						c.buttonMode = true;
+						c.label = file.name;
+						c.data = file;
+						box_dir.addChild(c);
+					}
+				}
+			}
+			
+			private function onTxt($e:MouseEvent):void{
+				var l:Label = $e.target.automationOwner as Label;
+				var s:String = l.data as String;
+				if(!s){
+					return
+				}
+				var n:int = box_txt.getChildIndex(l) as int;
+				for (var i:int=box_txt.numChildren-1 ; i>n ; i--){
+					box_txt.removeChildAt(i);
+				}
+				updata_dir(s);
+			}
+			
+			private function onDir($e:MouseEvent):void{
+				var c:CheckBox = $e.target as CheckBox
+				if(!c){
+					return
+				}
+				var f:File = c.data as File;
+				if(!f){
+					return
+				}
+				addDir(f.nativePath);
+			}
+			
+			private function onClick($e:MouseEvent):void{
+				moveImg()
+			}
+			
+			private function onMoveComplete($e:Event):void{
+				var evt:ZEvent = new ZEvent( ZEvent.Move , _dir_target);
+				this.dispatchEvent(evt);
+				StageLocker.unlock();
+			}
+			
+			public function moveImg():void{
+				if(!_url || !dir_src){
+					return
+				}
+				StageLocker.lock();
+				var file:File = new File(dir_src);
+				_dir_target =  _url + "\\" + file.name;
+				var f:File = new File(_dir_target);
+				var s:String = file.name
+				while(f.exists){
+					s = "_" + s;
+					_dir_target =  _url + "\\" + s;
+					f.nativePath = s;
+				}
+				file.addEventListener(Event.COMPLETE , onMoveComplete);
+				file.moveToAsync(f , true)
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<s:Button id="btn" label="移动" top="10" click="onClick(event)"/>
+	<mx:HBox id="box_txt" 
+			 click="onTxt(event)"/>
+	<mx:HBox id="box_dir" 
+			 paddingLeft="10" 
+			 horizontalScrollPolicy="off" verticalScrollPolicy="off"
+			 click="onDir(event)"/>
+	<mx:Label id="txt"/>
+</mx:HBox>

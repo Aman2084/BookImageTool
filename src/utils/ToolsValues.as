@@ -18,7 +18,9 @@ package utils
 	public class ToolsValues
 	{
 		
-		public static const DefaultUrl:String = "F:\\Download\\下载工具\\MyImages"; 
+		public static const DefaultUrl:String = "F:\\Download\\下载工具\\MyImages";
+		
+		public static const TargeterUrl:String = "F:\\001 图片\\000素材"; 
 		
 	}
 }

@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" 
+		 xmlns:move1="move.*" 
+		 xmlns:browe="browe.*"
+		 xmlns:move="sort.move.*" 
+		 horizontalScrollPolicy="off" verticalScrollPolicy="off"
+		 creationComplete="init(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			
+			import mx.events.FlexEvent;
+			
+			import utils.MyUtils;
+			import utils.ToolsValues;
+			
+			private var _mode:SortModel;
+			private var _data:File;
+			private var _file:File = new File(ToolsValues.DefaultUrl);
+			private var _renamer:Renamer = new Renamer();
+			
+			private var _loaded:Boolean = false;
+			private var _url_target:String;
+			
+			private function init($e:FlexEvent):void{
+				_mode = new SortModel();
+				_file.addEventListener(Event.SELECT , onFile);
+				items.addEventListener(ZEvent.ItemDoubleClick , onItem);
+				_renamer.addEventListener(ZEvent.Complete , onRenamer);
+				mover.addEventListener(ZEvent.Next , onMover);
+				mover.addEventListener(ZEvent.Move , onMover);
+				img.addEventListener(ZEvent.Close , onImg);
+			}
+			
+			private function onClick(event:MouseEvent):void{
+				switch(event.currentTarget){
+					case btn_local:
+						_file.browseForDirectory("请选取文件夹");
+						break
+					case btn_rename:
+						if(items.items.numItems>0){
+							MyUtils.buzy();
+							var l:SortList = items.items;
+							_renamer.rename(l.arr_removed , l.renameInfo);
+						}						
+						break;
+					case btn_move:
+						mover.visible = !mover.visible;
+						break
+					case btn_open:
+						_file.openWithDefaultApplication();
+						break;
+				}
+			}
+			
+			private function onTime():void{
+				cursorManager.removeBusyCursor()
+			}
+			
+			private function onFile($e:Event):void{
+				_mode.setData(_file.nativePath);
+				mover.dir_src = _mode.url_frist;
+				items.setData(_mode.files_frist);
+				refuseText()
+			}
+			
+			private function onItem($e:ZEvent):void{
+				var index:int =  $e.data as int;
+				var o:SortItem = $e.target as SortItem;
+				var b:BitmapData = o.img.bitmapData;
+				var a:Array = items.items.getBmd();
+				var i:int = items.items.getElementIndex(o);
+				img.setData(a , i);
+				img.visible = true;
+			}
+			
+			private function onImg($e:Event):void{
+				switch($e.type){
+					case ZEvent.Close:
+						img.visible = false;
+						break
+				}
+			}
+			
+			private function onRenamer($e:ZEvent):void{
+				MyUtils.unBuzy()
+				if(check.selected){
+					var evt:ZEvent = new ZEvent(ZEvent.Next , _file)
+					this.dispatchEvent(evt);
+				}
+			}
+			
+			public function setData($f:File):void{
+				if(initialized){
+					_file.nativePath = $f.nativePath;
+					//Todo...
+				}else{
+					_data = $f
+				}
+			}
+			
+			private function onMover($e:ZEvent):void{
+				switch($e.type){
+					case ZEvent.Next:		//显示下一文件夹中的图片
+						_mode.next();
+						items.setData(_mode.files_currect);
+						mover.dir_src = _mode.url_currect;
+						refuseText()
+						break
+					case ZEvent.Move:	//移动成功，显示下一个
+						_mode.deleteCurrect()
+						items.setData(_mode.files_currect);
+						mover.dir_src = _mode.url_currect;
+						refuseText()
+						break
+				}
+			}
+			
+			private function refuseText():void{
+				var s:String = (_mode.index+1) + "/" + _mode.num
+				txt.text = s;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%">
+		<move1:SortItems id="items" width="100%" height="100%"/>
+		
+		<mx:HBox id="bar"  bottom="0" verticalAlign="middle"
+				 width="100%" height="35" borderVisible="false"
+				 backgroundColor="0x009cff" backgroundAlpha="0.3"
+				 paddingLeft="10" buttonMode="true">
+			<s:Button id="btn_local" 
+					   label="源目录" click="onClick(event)"/>
+			<s:Button id="btn_rename"
+					   label="重命名" click="onClick(event)"/>
+			<s:Button id="btn_move" 
+					  label="移动" click="onClick(event)"/>
+			<s:Button id="btn_open"
+					  label="打开目录" click="onClick(event)"/>
+			<s:CheckBox id="check" label="自动下一步" selected="false"/>
+			<s:Label id="txt" paddingTop="6"/>
+		</mx:HBox>
+	</mx:VBox>
+	
+	<move1:Mover id="mover" width="100%" height="70" bottom="35"
+				visible="false"/>
+	<browe:BrowImage id="img" showDownload="false"
+				 width="100%" height="100%" visible="false"/>
+</mx:Canvas>

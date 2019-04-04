@@ -26,13 +26,13 @@
 			
 			public function setData($a:Array):void{
 				clear()
-				_data = $a;
+				_data = $a.concat();
 				load();
 			}
 			
 			
 			private function load():void{
-				if(!_data.length){
+				if(!_data || !_data.length){
 					var evt:ZEvent = new ZEvent(Event.COMPLETE)
 					dispatchEvent(evt);
 					refuse_imageNames();
@@ -144,6 +144,20 @@
 				return item;
 			}
 			
+			
+			public function getBmd():Array{
+				var a:Array = new Array();
+				var arr:Array = this.getChildren();
+				for (var i:int = 0; i < arr.length; i++){
+					var item:SortItem = arr[i];
+					var bmd:BitmapData = item.img.bitmapData;
+					if(bmd){
+						a.push(bmd);					
+					}
+				}
+				return a;
+			}
+			
 			/*
 			水浒画册信息生成
 			private function test($a:Array):void{
@@ -178,6 +192,10 @@
 					a.push(o);
 				}
 				return a;
+			}
+			
+			public function get numItems():int{
+				return this.numChildren;
 			}
 			
 		]]>

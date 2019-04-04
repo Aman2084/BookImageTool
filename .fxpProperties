@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fxpProperties abbreviated="false" authoringTool="Flex Builder" parentProject="498b8d5f-3ef1-4821-9b1f-f1dba6b8e7fb" projectUUID="498b8d5f-3ef1-4821-9b1f-f1dba6b8e7fb" pureCatalystProject="false" sdkVersion="4.6.0" uuid="0e59f525-5a2f-4f8e-ba13-fc7d89a88e41" version="15">
+  <projects>
+    <project filename="AmanQuick_AS3.fxpl" position="2" projectUUID="92ece63e-a00b-48dd-8507-9e0d1307e6cd" uuid="0e59f525-5a2f-4f8e-ba13-fc7d89a88e41"/>
+  </projects>
+  <src/>
+  <swc>
+    <linked location="sdkPlaceHolder" path="sdkPlaceHolder" position="0" uuid="0e59f525-5a2f-4f8e-ba13-fc7d89a88e41"/>
+    <linked location="E:/Workspace/Book/BookImageTool/libs" path="/libs" position="1" uuid="0e59f525-5a2f-4f8e-ba13-fc7d89a88e41"/>
+  </swc>
+  <misc/>
+  <theme/>
+  <mxmlFormattingPrefs groupAttributesByState="true" maxLineWidth="100" mxmlAlignAttributes="true" mxmlAttributeOrder="id,userLabel,includeIn,excludeFrom,visible,x,y,z,left,right,top,bottom,width,height,minWidth,minHeight,maxWidth,maxHeight,label" mxmlKeepAttributeValuesOrganized="true"/>
+</fxpProperties>

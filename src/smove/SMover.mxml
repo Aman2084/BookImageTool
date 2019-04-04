@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:VBox xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:smove="smove.*" xmlns:move="sort.move.*"
+		   verticalScrollPolicy="off" horizontalScrollPolicy="off"
+		   creationComplete="init(event)"
+		   show="onShow(event)" 
+		   mouseMove="setFocus()"
+		   keyDown="onKey(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			
+			import mx.events.FlexEvent;
+			
+			import utils.ToolsValues;
+			
+			private var _mode:SMoveMode;
+			
+			private function init(event:FlexEvent):void{
+				_mode = new SMoveMode();
+				_mode.addEventListener(ZEvent.Change , onMode);
+				mover.addEventListener(ZEvent.Move , onMover);
+				onShow(null);
+			}
+			
+			private function onShow($e:FlexEvent):void{
+				_mode.setData(ToolsValues.DefaultUrl);
+				_mode.updata()
+			}
+			
+			private function onMover($e:Event):void{
+				_mode.removeThis();
+			}
+			
+			private function onMode($e:ZEvent):void{
+				img.url = mover.dir_src = $e.data as String;
+				var s:String = (_mode.index+1) + "/" + _mode.num;
+				mover.txt.text = s;
+				setFocus()
+			}
+			
+			private function onKey($e:KeyboardEvent):void{
+				switch($e.keyCode){
+					case Keyboard.W:
+					case Keyboard.A:
+						_mode.prev()
+						break;
+					case Keyboard.S:
+					case Keyboard.D:
+						_mode.next()
+						break;	
+					case Keyboard.SPACE:
+					case Keyboard.ENTER:
+						mover.moveImg();
+						break; 
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<smove:SMoveImage id="img"
+		width="100%" height="{this.height-35}"/>
+	<smove:SMoverWorker id="mover"
+						width="{this.width}" height="35"/>
+	
+</mx:VBox>

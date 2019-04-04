@@ -11,7 +11,7 @@
 		   mouseUp="onUp(event)"
 		   mouseDown="onDown(event)"
 		   doubleClick="onDoubleClick(event)" 
-		   doubleClickEnabled="true">
+		   doubleClickEnabled="true" buttonMode="true">
 	<fx:Script>
 		<![CDATA[
 			import com.aman.event.ZEvent;
@@ -59,6 +59,8 @@
 				isLoading = false;
 				var evt:ZEvent = new ZEvent(ZEvent.Complete , null , true);
 				dispatchEvent(evt);
+				var s:String = img.sourceWidth + "X" + img.sourceHeight;
+				txt_size.text = s;
 			}
 			
 			private function onClick($e:MouseEvent):void{
@@ -108,7 +110,7 @@
 
 			public function set index($o:int):void{
 				_index = $o;
-				txt.text = Utils.int2Str($o , 3);
+				txt_name.text = Utils.int2Str($o , 3);
 				refuse_bg()
 			}
 			
@@ -151,7 +153,7 @@
 			}
 			
 			public function getNmae():String{
-				return txt.text;
+				return txt_name.text;
 			}
 		]]>
 	</fx:Script>
@@ -163,6 +165,7 @@
 			 click="onClick(event)" source="{imgUrl}"/>
 	
 	<s:Image id="bg" width="100%" height="30" bottom="0" backgroundAlpha="0.6" backgroundColor="0xffffff"/>
-	<s:Label id="txt" width="100%" height="20" bottom="0"  textAlign="center" text="001" fontSize="14"/>
+	<s:Label id="txt_name" width="100%" height="20" bottom="0"  textAlign="left" text="001" fontSize="14" paddingLeft="10"/>
+	<s:Label id="txt_size" width="100%" height="20" bottom="0"  textAlign="right" text="001" fontSize="14" paddingRight="10"/>
 	<s:CheckBox id="check" right="5" top="5"/>
 </mx:Canvas>
