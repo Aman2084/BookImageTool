@@ -37,7 +37,8 @@ package com
 		}
 		
 		private function onClick($e:MouseEvent):void{
-			_file.browseForDirectory("请选取文件夹");
+			var str:String = this.label + "——请选取文件夹";
+			_file.browseForDirectory(str);
 			_file.addEventListener(Event.SELECT , onFile);
 		}
 		

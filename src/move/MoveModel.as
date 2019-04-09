@@ -21,13 +21,13 @@ package move
 	 * 
 	 * @created  2019-3-22 下午9:58:16
 	 */
-	public class SortModel extends EventDispatcher
+	public class MoveModel extends EventDispatcher
 	{
 		private var _url_root:String;
 		private var _index:int;
 		private var _data:Array;
 		
-		public function SortModel(target:IEventDispatcher=null){
+		public function MoveModel(target:IEventDispatcher=null){
 			super(target);
 		}
 		

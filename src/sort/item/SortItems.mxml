@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   xmlns:move="move.*"
+		   horizontalScrollPolicy="off"
+		   verticalScrollPolicy="off"
+		   creationComplete="init(event)" xmlns:item="sort.item.*">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			
+			import mx.events.FlexEvent;
+			
+			
+			private var _item_currect:SortItem;
+			public function setData($a:Array):void{
+				items.setData($a);
+			}
+			
+			private function init($e:FlexEvent):void{
+				items.addEventListener(ZEvent.Show , onItems);
+			}
+			
+			private function onItems($e:ZEvent):void{
+				$e.stopImmediatePropagation();
+				var c:SortItem = $e.target as SortItem;
+				_item_currect = c;
+				img.x = c.x;
+				img.y = c.y - items.verticalScrollPosition;
+				img.source = $e.data;
+				img.visible = true;
+				img.startDrag(false);
+				stage.addEventListener(MouseEvent.MOUSE_UP , onUp);
+			}
+			
+			private function onUp($e:MouseEvent):void{
+				stage.removeEventListener(MouseEvent.MOUSE_UP , onUp);
+				img.stopDrag();
+				img.visible = false;
+				var p:Point = new Point(items.mouseX , items.mouseY);
+				p.offset(0 , items.verticalScrollPosition);
+				var target:SortItem = items.getItemByPoint(p);
+				
+				if(!target){
+					return
+				}
+				var j:int  = items.getChildIndex(target);
+				items.setChildIndex(_item_currect , j);
+				items.refuseChildrenPos();
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<item:SortList id="items" width="100%" height="100%"/>
+	
+	<s:Image id="img" visible="false" alpha="0.8"
+			 width="{SortItem.W}" height="{SortItem.H}" smooth="true"
+			 scaleMode="letterbox" verticalAlign="middle" horizontalAlign="center"/>
+	
+</mx:Canvas>

@@ -2,8 +2,65 @@
 <mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
 		   xmlns:s="library://ns.adobe.com/flex/spark" 
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
-		   horizontalScrollPolicy="off" verticalScrollPolicy="off">
-	<fx:Declarations>
-		<!-- 将非可视元素（例如服务、值对象）放在此处 -->
-	</fx:Declarations>
+		   horizontalScrollPolicy="off" verticalScrollPolicy="off" 
+		   xmlns:item="sort.item.*" xmlns:com="com.*"
+		   creationComplete="init(event)"
+		   >
+	
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			
+			import mx.events.FlexEvent;
+			
+			private var _model:SortModel
+			
+			private function init($e:FlexEvent):void{
+				_model = new SortModel()
+				btn_src.addEventListener(ZEvent.Selected , onSelected);
+				btn_target.addEventListener(ZEvent.Selected , onSelected);
+			}
+			
+//Event Handler
+			private function onClick($e:MouseEvent):void{
+				
+			}
+			
+			private function onSelected($e:ZEvent):void{
+				var s:String = $e.data as String;
+				switch($e.currentTarget){
+					case btn_src:
+						_model.url_src = s;
+						var a:Array = _model.getFiles();
+						items.setData(a);
+						break;
+					case btn_target:
+						_model.url_target = s;
+						break;
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<mx:VBox width="100%" height="100%">
+		<item:SortItems id="items" width="100%" height="100%"/>
+		
+		<mx:HBox id="bar"  bottom="0" verticalAlign="middle"
+				 width="100%" height="35" borderVisible="false"
+				 backgroundColor="0x009cff" backgroundAlpha="0.3"
+				 paddingLeft="10" buttonMode="true">
+			<com:BrowseButton  id="btn_src" label="源目录"/>
+			<com:BrowseButton  id="btn_target" label="目标目录"/>
+			<s:Button id="btn_rename"
+					  label="重命名" click="onClick(event)"/>
+			<s:Button id="btn_move" 
+					  label="移动" click="onClick(event)"/>
+			<s:Button id="btn_next" 
+					  label="下一图集" click="onClick(event)"/>
+			<s:Button id="btn_open"
+					  label="打开目录" click="onClick(event)"/>
+			<s:Label id="txt" paddingTop="6"/>
+		</mx:HBox>
+	</mx:VBox>
 </mx:Canvas>

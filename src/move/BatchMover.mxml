@@ -16,7 +16,7 @@
 			import utils.MyUtils;
 			import utils.ToolsValues;
 			
-			private var _mode:SortModel;
+			private var _mode:MoveModel;
 			private var _data:File;
 			private var _file:File = new File(ToolsValues.DefaultUrl);
 			private var _renamer:Renamer = new Renamer();
@@ -25,7 +25,7 @@
 			private var _url_target:String;
 			
 			private function init($e:FlexEvent):void{
-				_mode = new SortModel();
+				_mode = new MoveModel();
 				_file.addEventListener(Event.SELECT , onFile);
 				items.addEventListener(ZEvent.ItemDoubleClick , onItem);
 				_renamer.addEventListener(ZEvent.Complete , onRenamer);
@@ -42,7 +42,7 @@
 					case btn_rename:
 						if(items.items.numItems>0){
 							MyUtils.buzy();
-							var l:SortList = items.items;
+							var l:MoveList = items.items;
 							_renamer.rename(l.arr_removed , l.renameInfo);
 						}						
 						break;
@@ -68,7 +68,7 @@
 			
 			private function onItem($e:ZEvent):void{
 				var index:int =  $e.data as int;
-				var o:SortItem = $e.target as SortItem;
+				var o:MoveItem = $e.target as MoveItem;
 				var b:BitmapData = o.img.bitmapData;
 				var a:Array = items.items.getBmd();
 				var i:int = items.items.getElementIndex(o);
@@ -127,7 +127,7 @@
 	</fx:Script>
 	
 	<mx:VBox width="100%" height="100%">
-		<move1:SortItems id="items" width="100%" height="100%"/>
+		<move1:MoveItems id="items" width="100%" height="100%"/>
 		
 		<mx:HBox id="bar"  bottom="0" verticalAlign="middle"
 				 width="100%" height="35" borderVisible="false"

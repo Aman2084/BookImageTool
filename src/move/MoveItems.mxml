@@ -13,7 +13,7 @@
 			import mx.events.FlexEvent;
 			
 			
-			private var _item_currect:SortItem;
+			private var _item_currect:MoveItem;
 			public function setData($a:Array):void{
 				items.setData($a);
 			}
@@ -24,7 +24,7 @@
 			
 			private function onItems($e:ZEvent):void{
 				$e.stopImmediatePropagation();
-				var c:SortItem = $e.target as SortItem;
+				var c:MoveItem = $e.target as MoveItem;
 				_item_currect = c;
 				img.x = c.x;
 				img.y = c.y - items.verticalScrollPosition;
@@ -40,7 +40,7 @@
 				img.visible = false;
 				var p:Point = new Point(items.mouseX , items.mouseY);
 				p.offset(0 , items.verticalScrollPosition);
-				var target:SortItem = items.getItemByPoint(p);
+				var target:MoveItem = items.getItemByPoint(p);
 				
 				if(!target){
 					return
@@ -54,10 +54,10 @@
 	</fx:Script>
 	
 	
-	<move:SortList id="items" width="100%" height="100%"/>
+	<move:MoveList id="items" width="100%" height="100%"/>
 	
 	<s:Image id="img" visible="false" alpha="0.8"
-			 width="{SortItem.W}" height="{SortItem.H}" smooth="true"
+			 width="{MoveItem.W}" height="{MoveItem.H}" smooth="true"
 			 scaleMode="letterbox" verticalAlign="middle" horizontalAlign="center"/>
 	
 </mx:Canvas>

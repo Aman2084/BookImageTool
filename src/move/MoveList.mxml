@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		   xmlns:s="library://ns.adobe.com/flex/spark" 
+		   xmlns:mx="library://ns.adobe.com/flex/mx" 
+		   width="100%" height="100%"
+		   horizontalScrollPolicy="off"
+		   creationComplete="init(event)"
+		   resize="onResize(event)">
+	<fx:Script>
+		<![CDATA[
+			import com.aman.event.ZEvent;
+			
+			import mx.events.FlexEvent;
+			import mx.events.ResizeEvent;
+			
+			
+			private var _data:Array;
+			public var arr_removed:Array;
+			
+			
+			private function init($e:FlexEvent):void{
+				arr_removed = new Array();
+				this.addEventListener(ZEvent.Selected , onItem);
+				this.addEventListener(ZEvent.Delete , onItem);
+			}
+			
+			public function setData($a:Array):void{
+				clear()
+				_data = $a.concat();
+				load();
+			}
+			
+			
+			private function load():void{
+				if(!_data || !_data.length){
+					var evt:ZEvent = new ZEvent(Event.COMPLETE)
+					dispatchEvent(evt);
+					refuse_imageNames();
+					return
+				}
+				var item:MoveItem = new MoveItem();
+				item.width = MoveItem.W;
+				item.height = MoveItem.H;
+				
+				item.load(_data.shift());
+				item.addEventListener(IOErrorEvent.IO_ERROR , onLoad);
+				item.addEventListener(Event.COMPLETE , onLoad);
+				this.addChild(item);
+				onResize();
+			}
+			
+			private function onLoad($e:Event):void{
+				var item:MoveItem = $e.currentTarget as MoveItem;
+				item.removeEventListener(IOErrorEvent.IO_ERROR , onLoad);
+				item.removeEventListener(Event.COMPLETE , onLoad);
+				load();
+			}
+			
+			public function onResize($e:ResizeEvent=null):void{
+				if(this.numChildren<1){
+					return
+				}
+				var w:Number = this.width;
+				var gap:Number = 10;
+				var w1:Number = w - gap*2;
+				var w2:Number = 0;
+				var n:int = 0;
+				while((w2 += MoveItem.W + gap)<=w1){
+					n++;
+				}
+				if(n<1){
+					return;
+				}
+				w2 = (w - MoveItem.W*n - gap*(n-1)) / 2;
+				var a:Array = this.getChildren().concat();
+				var n1:int = Math.ceil(a.length / n);
+				var ypos:Number = gap / 2;
+				for (var i:int = 0; i < n1; i++){
+					var xpos:Number = w2;
+					for (var j:int = 0; j < n; j++){
+						if(a.length<1){
+							break;
+						}
+						var c:MoveItem = a.shift() as MoveItem;
+						c.x = xpos;
+						c.y =ypos;
+						xpos += (MoveItem.W + gap);
+					}
+					ypos += MoveItem.H+gap;
+				}
+			}
+			
+			private function refuse_imageNames():void{
+				var j:int = 0;
+				
+				for (var i:int = 0; i < this.numChildren; i++){
+					var c:MoveItem = this.getChildAt(i) as MoveItem;
+					c.index = j;
+					j += (c.isBigger) ? 2 : 1;
+				}
+			}
+			
+			private function clear():void{
+				arr_removed.length = 0;
+				while(this.numChildren){
+					var o:MoveItem = this.removeChildAt(0) as MoveItem;
+					o.unLoad();
+				}
+			}
+			
+			private function onItem($e:Event):void{
+				$e.stopImmediatePropagation();
+				var item:MoveItem = $e.target as MoveItem;
+				switch($e.type){
+					case ZEvent.Delete:
+						arr_removed.push(item.imgUrl);
+						this.removeChild(item);
+						onResize() 
+						refuse_imageNames();
+					case ZEvent.Selected:
+						refuse_imageNames()
+						break;
+				}
+				
+			}
+			
+			public function refuseChildrenPos():void{
+				onResize();
+				refuse_imageNames();
+			}
+			
+			public function getItemByPoint($p:Point):MoveItem{
+				var r:Rectangle = new Rectangle(0 , 0 , MoveItem.W , MoveItem.H);
+				var item:MoveItem = null;
+				for (var i:int=0 ; i < this.numChildren; i++){
+					var s:MoveItem =  this.getChildAt(i) as MoveItem;
+					r.x = s.x;
+					r.y = s.y;
+					if(r.containsPoint($p)){
+						item = s;
+						break
+					}
+				}
+				return item;
+			}
+			
+			
+			public function getBmd():Array{
+				var a:Array = new Array();
+				var arr:Array = this.getChildren();
+				for (var i:int = 0; i < arr.length; i++){
+					var item:MoveItem = arr[i];
+					var bmd:BitmapData = item.img.bitmapData;
+					if(bmd){
+						a.push(bmd);					
+					}
+				}
+				return a;
+			}
+			
+			/*
+			水浒画册信息生成
+			private function test($a:Array):void{
+				var xml:XML = <root/>
+				
+				for (var i:int = 0; i < $a.length; i++){
+					var f:File = $a[i];
+					var s:String = f.name.replace(f.type , "");
+					var x:XML = <page/>;
+
+					var a:Array = s.split("_");
+					x.@index = a[0];
+					s = a[1];
+					
+					a = s.split("、");
+					x.@star = a[0];
+					s = a[1];
+					
+					a = s.split("——");
+					x.@nick = a[0];
+					x.@name = a[1];
+					xml.page[i] = x;
+				}
+				trace(xml);
+			}*/
+			
+			public function get renameInfo():Array{
+				var a:Array = new Array();
+				for (var i:int = 0; i < this.numChildren; i++){
+					var item:MoveItem = this.getChildAt(i) as MoveItem;
+					var o:VoRename = new VoRename(item.imgUrl , item.getNmae());
+					a.push(o);
+				}
+				return a;
+			}
+			
+			public function get numItems():int{
+				return this.numChildren;
+			}
+			
+		]]>
+	</fx:Script>
+</mx:Canvas>
