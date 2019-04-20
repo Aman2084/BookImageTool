@@ -22,12 +22,17 @@ package edit
 		public var height:int;
 		public var name:String;
 		
-		public function ImageSizeInfo($b:BitmapData){
-			width = $b.width;
-			height = $b.height;
-			name = $b.width + "X" + $b.height;
+		public function ImageSizeInfo($b:BitmapData=null){
+			if($b){
+				setSize($b.width , $b.height);
+			}
 		}
 		
+		public function setSize($w:int , $h:int):void{
+			width = $w;
+			height = $h;
+			name = $w + "X" + $h;
+		}
 		
 		public function get size():int{
 			return width * height;

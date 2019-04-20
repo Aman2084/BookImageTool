@@ -22,5 +22,12 @@ package utils
 		
 		public static const TargeterUrl:String = "F:\\001 图片\\000素材"; 
 		
+		public static const Sort_BaseUrl:String = "F:\\001 图片\\000素材";
+		public static const Sort_TargetUrl:String = "F:\\AmanBook\\assets";
+		
+		
+		public static const Edit_ImgUrl:String = "F:\\AmanBook\\assets";
+		public static const Edit_CodeUrl:String = "F:\\AmanBook\\code";
+		
 	}
 }

@@ -17,7 +17,7 @@
 			private function init(event:FlexEvent):void{
 				maximize()
 				browse.addEventListener(ZEvent.Next , onBrowse);
-				sortf.addEventListener(ZEvent.Next , onSort);
+				this.sort1.addEventListener(ZEvent.Next , onSort);
 			}
 			
 			protected function onAdded(event:Event):void{
@@ -26,25 +26,30 @@
 			
 			private function onBrowse($e:ZEvent):void{
 				var f:File = $e.data as File;
-				sortf.setData(f)
+				batch.setData(f)
 				tab.selectedIndex = 1;
 			}
 			
 			private function onSort($e:ZEvent):void{
-				var f:File = $e.data as File;
-				editor.setData(f);
-				tab.selectedIndex = 2;
+				var o:Object = $e.data;
+				editor.url = o.url;
+				tab.selectedIndex = 4;
+				if(!editor.initialized){
+					editor.data_size = o.size;
+				}else{
+					editor.setImageSize(o.size)
+				}
 			}
 			
 		]]>
 	</fx:Script>
 	
 	
-	<mx:TabNavigator id="tab" width="100%" height="100%" selectedIndex="4">
+	<mx:TabNavigator id="tab" width="100%" height="100%" selectedIndex="3">
 		<browe:Browse id="browse" label="下载" width="100%" height="100%"/>
-		<move:BatchMover id="sortf" label="批量整理" width="100%" height="100%"/>
+		<move:BatchMover id="batch" label="批量整理" width="100%" height="100%"/>
 		<smove:SMover id="smover" label="单图整理" width="100%" height="100%"/>
-		<sort:Sort id="sort" label="排序" width="100%" height="100%"/>
+		<sort:Sort id="sort1" label="排序" width="100%" height="100%"/>
 		<edit:Editor id="editor" label="信息" width="100%" height="100%"/>
 	</mx:TabNavigator>
 	

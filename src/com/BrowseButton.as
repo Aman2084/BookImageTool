@@ -28,6 +28,7 @@ package com
 	public class BrowseButton extends Button
 	{
 		private var _file:File = new File(ToolsValues.TargeterUrl);
+		private var _defaultUrl:String = "";
 		
 		public function BrowseButton()
 		{
@@ -38,6 +39,9 @@ package com
 		
 		private function onClick($e:MouseEvent):void{
 			var str:String = this.label + "——请选取文件夹";
+			if(this._defaultUrl){
+				_file.nativePath = _defaultUrl;
+			}
 			_file.browseForDirectory(str);
 			_file.addEventListener(Event.SELECT , onFile);
 		}
@@ -49,6 +53,13 @@ package com
 		
 		public function get url():String{
 			return _file.nativePath;
+		}
+		public function set url($s:String):void{
+			_file.nativePath = $s;
+		}
+		
+		public function set defaultUrl($s:String):void{
+			_defaultUrl = $s;
 		}
 	}
 }

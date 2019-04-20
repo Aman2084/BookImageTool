@@ -13,6 +13,8 @@
 			import mx.events.FlexEvent;
 			import mx.events.ResizeEvent;
 			
+			import edit.ImageSizeInfo;
+			
 			import move.VoRename;
 			
 			
@@ -156,6 +158,24 @@
 						a.push(bmd);					
 					}
 				}
+				return a;
+			}
+			
+			public function getSize():Array{
+				var a:Array = new Array();
+				var arr:Array = this.getChildren();
+				var obj:Object = new Object();
+				for (var i:int = 0; i < arr.length; i++){
+					var item:SortItem = arr[i];
+					var bmd:BitmapData = item.img.bitmapData;
+					
+					var o:ImageSizeInfo = new ImageSizeInfo(bmd);
+					if(!obj.hasOwnProperty(o.name)){
+						obj[o.name] = o;
+						a.push(o);
+					}
+				}
+				a.sortOn("size" ,Array.NUMERIC);
 				return a;
 			}
 			

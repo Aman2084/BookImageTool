@@ -4,40 +4,130 @@
 		   xmlns:mx="library://ns.adobe.com/flex/mx"
 		   horizontalScrollPolicy="off" verticalScrollPolicy="off" 
 		   xmlns:item="sort.item.*" xmlns:com="com.*"
-		   creationComplete="init(event)"
-		   >
+		   creationComplete="init(event)" xmlns:browe="browe.*">
 	
 	<fx:Script>
 		<![CDATA[
 			import com.aman.event.ZEvent;
 			
+			import mx.collections.Sort;
 			import mx.events.FlexEvent;
 			
-			private var _model:SortModel
+			import move.Renamer;
+			
+			import sort.item.SortItem;
+			import sort.item.SortList;
+			
+			import utils.Debug;
+			import utils.MyUtils;
+			import utils.ToolsValues;
+			
+			[Bindable]
+			private var _model:SortModel = new SortModel();
+			private var _renamer:Renamer = new Renamer();
 			
 			private function init($e:FlexEvent):void{
-				_model = new SortModel()
+				btn_base.addEventListener(ZEvent.Selected , onSelected);
 				btn_src.addEventListener(ZEvent.Selected , onSelected);
 				btn_target.addEventListener(ZEvent.Selected , onSelected);
+				items.addEventListener(ZEvent.ItemDoubleClick , onItem);
+				
+				var t:Sort = this;
+				img.addEventListener(ZEvent.Close , function($e:Event):void{
+					var img:BrowImage = $e.target as BrowImage;
+					img.visible = false
+				});
+				
+				_renamer.addEventListener(ZEvent.Complete , function($e:Event):void{
+					MyUtils.unBuzy();
+					t.btn_move.enabled = true;
+					t.btn_rename.enabled = false;
+				});
+				
+				_model.addEventListener(ZEvent.Move , function($e:ZEvent):void{
+					t.btn_move.enabled = false;
+				});
+				
+				if(Debug.useDebug){
+					test()
+				}
 			}
 			
 //Event Handler
+			private function onItem($e:ZEvent):void{
+				var index:int =  $e.data as int;
+				var o:SortItem = $e.target as SortItem;
+				var b:BitmapData = o.img.bitmapData;
+				var a:Array = items.items.getBmd();
+				var i:int = items.items.getElementIndex(o);
+				img.setData(a , i);
+				img.visible = true;
+			}
+			
 			private function onClick($e:MouseEvent):void{
-				
+				switch($e.currentTarget){
+					case btn_rename:
+						var l:SortList = items.items;
+						if(l.numItems>0){
+							MyUtils.buzy();
+							_renamer.rename(l.arr_removed , l.renameInfo);
+						}
+						break;
+					case btn_move:
+						_model.move();
+						break;
+					case btn_nextImgs:
+						if(_model.next()){
+							refuse();
+						}
+						break
+					case btn_next:
+						nextStep()
+						break;
+				}
 			}
 			
 			private function onSelected($e:ZEvent):void{
 				var s:String = $e.data as String;
 				switch($e.currentTarget){
+					case btn_base:
+						_model.url_srcBase = s;
+						break
 					case btn_src:
 						_model.url_src = s;
-						var a:Array = _model.getFiles();
-						items.setData(a);
+						refuse()
 						break;
 					case btn_target:
-						_model.url_target = s;
+						_model.url_targetBase = s;
 						break;
 				}
+			}
+			
+			private function refuse():void{
+				var a:Array = _model.getFiles();
+				items.setData(a);
+				this.btn_move.enabled = false;
+				this.btn_rename.enabled = true;
+			}
+			
+			private function test():void{
+				var str:String = "F:\\001 图片\\000素材\\001套图\\001欧美\\001白人\\001 写真\\0c4f568c9868142d8f87f4f3bd9d4e09"
+				_model.url_src = str;
+				var a:Array = _model.getFiles();
+				items.setData(a);
+				btn_rename.enabled = true;
+			}
+			
+			private function nextStep():void{
+				var s:String = _model.url_target;
+				if(!s){
+					return
+				}
+				var o:Object = new Object();
+				o.url = s;
+				o.size = items.items.getSize();
+				var e:ZEvent = new ZEvent(ZEvent.Next , o);
+				this.dispatchEvent(e);
 			}
 			
 		]]>
@@ -50,17 +140,24 @@
 				 width="100%" height="35" borderVisible="false"
 				 backgroundColor="0x009cff" backgroundAlpha="0.3"
 				 paddingLeft="10" buttonMode="true">
-			<com:BrowseButton  id="btn_src" label="源目录"/>
-			<com:BrowseButton  id="btn_target" label="目标目录"/>
+			<com:BrowseButton  id="btn_base" 
+							   label="基路径" toolTip="{_model.url_srcBase}"/>
+			<com:BrowseButton  id="btn_src" 
+							   label="源目录" toolTip="{_model.url_src}" defaultUrl="{ToolsValues.TargeterUrl}"/>
+			<com:BrowseButton  id="btn_target" 
+							   label="目标目录" toolTip="{_model.url_targetBase}"/>
 			<s:Button id="btn_rename"
-					  label="重命名" click="onClick(event)"/>
+					  label="重命名" enabled="false" click="onClick(event)"/>
 			<s:Button id="btn_move" 
-					  label="移动" click="onClick(event)"/>
-			<s:Button id="btn_next" 
+					  label="移动" enabled="false" click="onClick(event)"/>
+			<s:Button id="btn_nextImgs" 
 					  label="下一图集" click="onClick(event)"/>
-			<s:Button id="btn_open"
-					  label="打开目录" click="onClick(event)"/>
+			<s:Button id="btn_next"
+					  label="下一步" click="onClick(event)"/>
 			<s:Label id="txt" paddingTop="6"/>
 		</mx:HBox>
 	</mx:VBox>
+	
+	<browe:BrowImage id="img" showDownload="false"
+					 width="100%" height="100%" visible="false"/>
 </mx:Canvas>
