@@ -170,13 +170,22 @@
 					var bmd:BitmapData = item.img.bitmapData;
 					
 					var o:ImageSizeInfo = new ImageSizeInfo(bmd);
-					if(!obj.hasOwnProperty(o.name)){
-						obj[o.name] = o;
-						a.push(o);
+					addSize(o);
+					if(o.width>o.height){
+						var h:ImageSizeInfo = o.getHalf();
+						addSize(h)
 					}
 				}
 				a.sortOn("size" ,Array.NUMERIC);
 				return a;
+				
+				
+				function addSize($o:ImageSizeInfo):void{
+					if(!obj.hasOwnProperty($o.name)){
+						obj[$o.name] = $o;
+						a.push($o);
+					}
+				}
 			}
 			
 			/*

@@ -34,6 +34,12 @@ package edit
 			name = $w + "X" + $h;
 		}
 		
+		public function getHalf():ImageSizeInfo{
+			var o:ImageSizeInfo = new ImageSizeInfo();
+			o.setSize(this.width/2 , this.height);
+			return o;
+		}
+		
 		public function get size():int{
 			return width * height;
 		}

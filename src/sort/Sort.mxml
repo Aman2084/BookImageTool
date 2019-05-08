@@ -84,6 +84,15 @@
 					case btn_next:
 						nextStep()
 						break;
+					case btn_refuse:
+						refuse();
+						break;
+					case btn_open_src:
+						open(_model.url_src)
+						break;
+					case btn_open_target:
+						open(_model.url_target)
+						break
 				}
 			}
 			
@@ -104,6 +113,7 @@
 			}
 			
 			private function refuse():void{
+				_model.moved = false;
 				var a:Array = _model.getFiles();
 				items.setData(a);
 				this.btn_move.enabled = false;
@@ -130,6 +140,16 @@
 				this.dispatchEvent(e);
 			}
 			
+			private function open($s:String):void{
+				if(!$s){
+					return
+				}
+				var f:File = new File($s);
+				if(f.exists){
+					f.openWithDefaultApplication()
+				}
+			}
+			
 		]]>
 	</fx:Script>
 	
@@ -154,6 +174,9 @@
 					  label="下一图集" click="onClick(event)"/>
 			<s:Button id="btn_next"
 					  label="下一步" click="onClick(event)"/>
+			<s:Button id="btn_refuse" label="刷新" click="onClick(event)"/>
+			<s:Button id="btn_open_src" label="打开源目录" click="onClick(event)"/>
+			<s:Button id="btn_open_target" label="打开目标目录" click="onClick(event)"/>
 			<s:Label id="txt" paddingTop="6"/>
 		</mx:HBox>
 	</mx:VBox>

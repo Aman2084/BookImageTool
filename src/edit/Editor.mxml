@@ -29,7 +29,6 @@
 				_loader = new EditLoader();
 				_code = new CodeTool();
 				if(data_size){
-					_code.url_src = this.url;
 					this.setImageSize(data_size)
 				}
 				
@@ -86,6 +85,7 @@
 					var btn:RadioButton = new RadioButton();
 					btn.label = s.name;
 					btn.group = group;
+					btn.buttonMode = true;
 					_arr_radio.push(btn);
 					btn.value = s;
 					this.addElementAt(btn , 1);
@@ -98,6 +98,7 @@
 					Alert.show("请选择基准尺寸");
 					return
 				}
+				this._code.url_src = this.url;
 				this._code.saveCode(s)
 			}
 			
@@ -109,7 +110,6 @@
 				f = f.resolvePath("Main.fla");
 				f.openWithDefaultApplication()
 			}
-			
 		]]>
 	</fx:Script>
 	
@@ -119,11 +119,10 @@
 	
 	<s:Label text="单页尺寸："/>
 	
-	<mx:HBox>
+	<mx:HBox buttonMode="true">
 		<com:BrowseButton id="btn_src" label="图片文件夹" defaultUrl="{ToolsValues.Edit_ImgUrl}"/>
 		<com:BrowseButton id="btn_target" label="代码文件夹" url="{ToolsValues.Edit_CodeUrl}"/>
 		<s:Button id="btn_code" label="生成代码" click="onClick(event)"/>
 		<s:Button id="btn_fla" label="打开Flash" click="onClick(event)"/>
-		
 	</mx:HBox>
 </mx:VBox>

@@ -112,7 +112,10 @@ package sort
 						break
 					}
 				}
-				
+				if(!s && a.length){
+					r = a[0]
+					s = r.nativePath
+				}
 				if(s && s!=this.url_src) {
 					this.url_src = s
 					b = true
